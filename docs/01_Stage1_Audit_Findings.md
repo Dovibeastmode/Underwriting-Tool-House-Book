@@ -107,8 +107,8 @@ All figures below were recomputed from the raw `Data` sheet, not read off the de
 
 | Issue | Count | Handling in the new build |
 |---|---|---|
-| No revenue figure | 188 (17.6%) | Excluded from advance/revenue stats; counted and shown |
-| No ISO / no state / no SIC | 34 / 34 blank + 37 "No state" / 40 | Never match on a blank; blanks fall to the next tier |
+| No revenue figure | 154 (14.4%) | Excluded from advance/revenue stats; counted and shown |
+| No ISO / "No state" / no SIC-2 | 0 / 37 / 6 | Never match on a blank; blanks fall to the next tier. One deal has no position. |
 | Position field: 49% of deals are position 3 (61% of renewals) | 519 | Used, but flagged as a CRM-field reliability question |
 | Never paid (collected ≤ 0) | 15 | Kept; counted as defaults per status |
 | Status Open but ≥ 99.9% paid | 8 | Status stale; flagged in Checks |
@@ -123,7 +123,7 @@ All figures below were recomputed from the raw `Data` sheet, not read off the de
 
 ## 3. Seasoning and the four bases
 
-Seasoned = business-day age at the as-of date (08/25/2026) ≥ 1.25 × contracted term in business days (the v13 rule from the log, now a Controls cell).
+Seasoned = business-day age at the as-of date (08/25/2026) ≥ 1.25 × contracted term in business days (the v13 rule from the log, now a Controls cell). The table below comes from the analysis script (numpy business-day count, end-exclusive: 629 deals). The workbook uses Excel `NETWORKDAYS`, which counts both end days, and lands on 637 seasoned deals, $12,563,126 funded, 21.1% principal lost; both were verified independently and the workbook figure is the one the model uses.
 
 | Basis | Deals | Funded | Open | Default rate | Principal lost | Collected on defaults | Return on funded |
 |---|---|---|---|---|---|---|---|

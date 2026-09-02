@@ -1,0 +1,11 @@
+# Underwriting Tool + House Book — combined MCA underwriting model
+
+| Path | What it is |
+|---|---|
+| `Aspire_Combined_Underwriting_Model.xlsx` | **The deliverable.** Blank combined model: `Deal` (the original template + profile inputs + Section F), `Decision Summary`, `Offer Engine`, `Historical Score`, `Comparable Deals`, `Historical Data` (1,067 deals), `Controls`, `Checks`, `Ref`, `README`. |
+| `examples/Example_Deal_A_construction.xlsx` | The worked example (new 2nd-position General Building Contractor via United Secured Capital 8) with all values cached. |
+| `docs/01_Stage1_Audit_Findings.md` | Audit of both workbooks, the deck and both session logs; what survives controls. |
+| `docs/02_Stage2_Combined_Architecture.md` | Sheet structure, input dictionary, hard rules, hierarchy, credibility, modifier table, worked example. |
+| `docs/03_Stage3_Implementation_Notes.md` | Formula map, reconciliation, manual verification, ten-scenario test record, limitations. |
+| `originals/` | Untouched uploads with MD5 checksums. |
+| `build/build_model.py` | Rebuilds the model from the originals. `build/run_scenarios.py` runs the test scenarios through LibreOffice. |

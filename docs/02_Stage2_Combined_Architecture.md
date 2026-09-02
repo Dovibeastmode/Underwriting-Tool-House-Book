@@ -131,6 +131,21 @@ Stipulations: standard set always (DataMerch, UCC search, positions/payoff lette
 
 ---
 
-## 6. Worked example (filled from the built model, see `docs/03_Stage3_Implementation_Notes.md`)
+## 6. Worked example (actual model output, scenario A in `build/run_scenarios.py`)
 
-A new 3rd-position General Building Contractor in TX through United Secured Capital 8, FICO 640, $120k average true revenue, $9k average balance, one existing weekly position. The cash-flow engine sizes the green-line maximum; Tier 1 (new + construction + 3rd) is the primary cohort; its seasoned lost rate is well above the book; confidence Medium; modifier Negative; fund cut to 70% of the cash-flow max, term one band shorter, factor one tier higher, weekly remittance, no-stacking covenant. The explanation names the cohort size, the lost rate versus book, the limiting cash-flow metric, and that state evidence was not used.
+New deal, General Building Contractor, TX, ISO United Secured Capital 8, FICO 640, requested $75,000 @ 1.49 / 30 weeks. Four months of true revenue averaging $119,500, average balance $9,000, one negative day, one NSF, one existing weekly position (Fox Funding, $60,000 funded, $2,500/week). Positions incl. new = 2.
+
+| Step | Result |
+|---|---|
+| Layer 1 metrics | Leverage 22.6% G, holdback 13.5% G, daily debt/balance 13.8% G, fund/rev 0.63 Y, positions 2 G, trend +2.6% G, neg days+NSF 2 Y, credit 640 Y |
+| Layer 1 decision (requested offer) | CONDITIONAL, score 6.5 of 8 (scaled 5.7/7 = Solid) |
+| Cash-flow maximum | $993/day, limited by holdback; term 100 daily payments (fund/rev green line caps it); factor 1.45; **max fund $68,500** |
+| Primary cohort | Tier 1: new + General Building Contractors + position 2 — 27 matches, 23 seasoned, $414k funded, 4% open, 48% defaulted, **principal lost 34.0%** vs 21.1% seasoned book |
+| Credibility | Z = 23/(23+30) = 0.43 → blended 26.7% → index 1.27 → Mild negative; confidence Medium |
+| Adjustment | fund × 0.80, term −1 band (already at the 100 floor), factor +1 tier (1.45 → 1.49) |
+| Final offer | **$54,500 @ 1.49, 20 weeks, $4,060/week** (daily-equivalent $812 ≤ $993 max); holdback 14.7% G, leverage 24.9% G |
+| Decision | CONDITIONAL. Stips: standard + no-stacking covenant with default-to-daily, bank login verification (neg days/NSF yellow), landlord letter (credit yellow) |
+| Largest historical impact | Industry (82 seasoned GBC deals, 29.4% blended vs 21.1%) |
+| Evidence notes | ISO USC8 109 seasoned deals lost 26.5% (weaker); TX 118 deals lost 13.0% — informational only |
+
+Written conclusion produced by the sheet: "Cash flow supports up to $68,500 (SP% holdback is the limit, 100 daily pmts @ 1.45). The recommendation is $54,500 (80% of the maximum) at 1.49 over 20 weeks, $4,060/week, because the primary comparable cohort (T1: new/renewal + industry + position) holds 23 / 27 seasoned deals with a principal lost rate of 34.0% against 21.1% for the seasoned book; at credibility 0.43 that blends to 26.7% (index 1.27), which is mild negative. Confidence is medium. ISO United Secured Capital 8: 109 seasoned deals, lost 26.5% vs 21.1% book, Z 0.78 -> weaker than book. Industry General Building Contractors: 82 seasoned deals, lost 32.5% vs 21.1% book, Z 0.73 -> weaker than book. State TX: 118 seasoned deals, lost 13.0% vs 21.1% book - informational only, not used in the offer."
