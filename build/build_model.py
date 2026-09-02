@@ -649,6 +649,10 @@ txt=["ASPIRE COMBINED UNDERWRITING MODEL  -  cash-flow engine + house-book evide
 "- Never insert or delete rows on Controls; formulas reference fixed cells.",
 "- Score scaling: with a credit score entered the scorecard has 8 metrics; the score is scaled to the 7-point bands (score x 7 / metrics scored) so the pricing bands and tier names keep their meaning. APPROVE still requires every scored metric green.",
 "",
+"GOOGLE SHEETS",
+"Import: Google Drive > New > File upload > this .xlsx > open > File > Save as Google Sheets (or Sheets > File > Import > Upload > Replace spreadsheet). Every function used (SUMPRODUCT, NETWORKDAYS, INDEX/MATCH, COUNTIF, CHOOSE, FLOOR, TEXT, IFERROR, VLOOKUP) is native to Sheets. The first recalculation of the 45,000 formulas takes a few seconds; after that only the changed deal recalculates.",
+"Dropdowns, colour rules, merged cells and number formats survive the import. Page setup does not matter in Sheets. If a dropdown shows no choices after import, re-point it at the Ref sheet lists (Data > Data validation).",
+"",
 "CONVERSIONS: money with 5 and 21.655 (weekly / 5 = daily; monthly / 21.655 = daily); time with 4.331 (weeks / 4.331 = months). MoneyBadger uses 4 and 21."]
 for i,t in enumerate(txt):
     c=rd.cell(2+i,2,t); c.font=B if (t.isupper() or i==0) else N; c.alignment=Alignment(wrap_text=True,vertical='top')

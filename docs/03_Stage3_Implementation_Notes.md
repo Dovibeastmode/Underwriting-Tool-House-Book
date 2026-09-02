@@ -1,6 +1,6 @@
 # Stage 3 — Implementation Notes and Test Record
 
-Deliverable: `Aspire_Combined_Underwriting_Model.xlsx` (blank, ready for a deal). Built by `build/build_model.py` from the two untouched originals in `originals/`. `examples/Example_Deal_A_construction.xlsx` is the worked example with values cached.
+Deliverable: `Aspire_Combined_Underwriting_Model.xlsx` (blank, ready for a deal). Built by `build/build_model.py` from the two untouched originals in `originals/`. The worked example (scenario A) is reproducible with `build/run_scenarios.py`.
 
 ## What was preserved
 
