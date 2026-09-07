@@ -154,17 +154,48 @@ for i,v in enumerate(states): rf.cell(2+i,9,v)
 for i,v in enumerate(hols): rf.cell(2+i,11,v).number_format='mm/dd/yyyy'
 for i,s in enumerate(statuses): rf.cell(2+i,13,s[0])
 
-# ---------- Historical Data (8 sample deals) ----------
+# ---------- Historical Data (8 sample deals; house-book helper formulas LIVE, new columns outlined) ----------
 hs=wb.create_sheet('Historical Data')
 raw_cols=['Contract ID','DBA','Legal name','Status','Start date','Last active','Position','SIC','SIC2','State','ISO','New or renewal','Factor','Advance','Commission','Payback','Collected','Balance','% paid','Exp dur (raw)','NSF count','Avg rev/mo','Holdback %','Biz start']
-helper=[('Industry','SIC2 looked up on Ref (blank -> "No SIC")'),('Pay frequency','raw duration < 12 = months = Daily deal; >= 12 = weeks = Weekly deal'),('Term (bus. days)','months x 21.655 or weeks x 5'),('Age at as-of (bus. days)','NETWORKDAYS(funding date, Controls as-of date, holidays)'),('Seasoned','1 if age >= seasoning multiple x term'),('In window','1 if funded inside the Controls window'),('Default','from status mapping'),('Resolved','from status mapping'),('Closed family','from status mapping'),('Open','from status mapping'),('Status valid','1 if status is in the mapping table'),('Net cash','collected - advance'),('Principal lost','MAX(advance - collected, 0) on defaulted deals, else 0'),('Adv / revenue','advance / avg monthly revenue (0 + "has revenue" flag when missing)'),('Has revenue','1 if revenue present'),('Days on book (bus.)','NETWORKDAYS(funding, last active)'),('Renewal','1 if Renewal'),('Eligible','seasoned x in-window: the only rows that enter a rate'),('m: position','1 if position = proposed position on Deal'),('m: new/renewal','1 if same as Deal'),('m: industry','1 if same as Deal'),('m: ISO','1 if same as Deal'),('m: state','1 if same as Deal'),('T1 NR+Ind+Pos','m:NR x m:Ind x m:Pos'),('T2 NR+ISO+Pos','m:NR x m:ISO x m:Pos'),('T3 NR+Ind','m:NR x m:Ind'),('T4 NR+ISO','m:NR x m:ISO'),('T5 NR+Pos','m:NR x m:Pos'),('T6 NR','m:NR'),('T7 Book','always 1'),('Best tier','lowest tier number the deal matches'),('In primary cohort','1 if the deal matches the primary tier chosen on Historical Score'),('Seq','running count of in-primary-cohort rows; feeds the Comparable Deals list')]
-for i,t in enumerate(raw_cols+[h[0] for h in helper]):
-    c=hs.cell(1,1+i,t); c.font=SUB; c.fill=MID if i<len(raw_cols) else DARK; c.alignment=Alignment(horizontal='center',vertical='center',wrap_text=True); c.border=BOX
+ST='Controls!$A$61:$E$71'; HOL=f'Ref!$K$2:$K${1+len(hols)}'; BDM='Controls!$B$29'; BDW='5'; WFROM='Controls!$B$37'; WTO='Controls!$B$38'
+# (header, description, formula-template with {r}) - these are the original House Book Analytics formulas, re-pointed to this workbook's Controls / Ref
+live=[('Unit of raw duration','raw < 12 = Months (daily deal), >= 12 = Weeks (weekly deal)','=IF(T{r}="","",IF(T{r}<12,"Months","Weeks"))'),
+ ('Pay frequency','Months -> Daily, Weeks -> Weekly','=IF(Y{r}="","",IF(Y{r}="Months","Daily","Weekly"))'),
+ ('Expected term (payments)','months x 21.655, or weeks',f'=IF(T{{r}}="","",IF(Z{{r}}="Daily",T{{r}}*{BDM},T{{r}}))'),
+ ('Expected term (business days)','months x 21.655, or weeks x 5',f'=IF(T{{r}}="","",IF(Z{{r}}="Daily",T{{r}}*{BDM},T{{r}}*{BDW}))'),
+ ('Actual days on book (calendar)','last active - funding','=IF(OR(E{r}="",F{r}=""),"",F{r}-E{r})'),
+ ('Actual days on book (business)','NETWORKDAYS(funding, last active, Fed holidays)',f'=IF(OR(E{{r}}="",F{{r}}=""),"",NETWORKDAYS(E{{r}},F{{r}},{HOL}))'),
+ ('Default','status mapping, col 2',f'=IF(IFERROR(VLOOKUP(D{{r}},{ST},2,FALSE),"No")="Yes",1,0)'),
+ ('Resolved','status mapping, col 3',f'=IF(IFERROR(VLOOKUP(D{{r}},{ST},3,FALSE),"No")="Yes",1,0)'),
+ ('Closed family','status mapping, col 4',f'=IF(IFERROR(VLOOKUP(D{{r}},{ST},4,FALSE),"No")="Yes",1,0)'),
+ ('In scope','funded inside the Controls window',f'=IF(AND(E{{r}}<>"",E{{r}}>={WFROM},E{{r}}<={WTO}),1,0)'),
+ ('Net cash','collected - advance','=Q{r}-N{r}'),
+ ('Principal lost','MAX(advance - collected, 0) on defaulted deals','=IF(AE{r}=1,MAX(0,N{r}-Q{r}),0)'),
+ ('Collected %','collected / advance','=IFERROR(Q{r}/N{r},"")'),
+ ('Advance / revenue','advance / avg monthly revenue; blank when missing','=IF(V{r}="","",N{r}/V{r})'),
+ ('Has revenue','1 if revenue present','=IF(V{r}="",0,1)'),
+ ('Never paid','1 if collected <= 0','=IF(Q{r}<=0,1,0)'),
+ ('Days on book (defaulted deals)','business days, defaulted only','=IF(AE{r}=1,AD{r},"")'),
+ ('Days to close','business days, non-defaulted Closed family','=IF(AND(AE{r}=0,AG{r}=1),AD{r},"")'),
+ ('Size bucket','six advance buckets','=IF(N{r}<10000,"Under $10K",IF(N{r}<20000,"$10-20K",IF(N{r}<30000,"$20-30K",IF(N{r}<50000,"$30-50K",IF(N{r}<100000,"$50-100K","$100K+")))))'),
+ ('Factor bucket','six factor buckets','=IF(M{r}<=1.35,"1.35 and under",IF(M{r}<=1.42,"1.36-1.42",IF(M{r}<=1.45,"1.43-1.45",IF(M{r}<1.49,"1.46-1.48",IF(M{r}<=1.49,"1.49","Above 1.49")))))'),
+ ('Term bucket','cut on business days','=IF(AB{r}="","",IF(AB{r}<60,"Under 60",IF(AB{r}<90,"60-89",IF(AB{r}<120,"90-119",IF(AB{r}<150,"120-149","150+")))))'),
+ ('Adv/rev bucket','with a "No revenue data" bucket','=IF(AL{r}="","No revenue data",IF(AL{r}<0.15,"Under 0.15x",IF(AL{r}<0.3,"0.15-0.30x",IF(AL{r}<0.5,"0.30-0.50x",IF(AL{r}<1,"0.50-1.00x","1.00x+")))))'),
+ ('Industry','SIC2 looked up on Ref','=IF(I{r}="","No SIC",IFERROR(VLOOKUP(I{r},Ref!$A$2:$B$65,2,FALSE),"Unclassified"))'),
+ ('Quarter','funding quarter','=IF(E{r}="","",TEXT(E{r},"YYYY")&"-Q"&ROUNDUP(MONTH(E{r})/3,0))'),
+ ('Month','funding month','=IF(E{r}="","",TEXT(E{r},"YYYY-MM"))'),
+ ('Year','funding year','=IF(E{r}="","",TEXT(E{r},"YYYY"))')]
+planned=[('Open','from status mapping col 5 (new column in the mapping)'),('Age at as-of (bus. days)','NETWORKDAYS(funding date, Controls as-of date, holidays)'),('Seasoned','1 if age >= seasoning multiple x expected term (business days)'),('Eligible','seasoned x in-scope: the only rows that enter a rate'),('Renewal','1 if Renewal'),('m: position','1 if position = proposed position on Deal'),('m: new/renewal','1 if same as Deal'),('m: industry','1 if same as Deal'),('m: ISO','1 if same as Deal'),('m: state','1 if same as Deal'),('T1 NR+Ind+Pos','m:NR x m:Ind x m:Pos'),('T2 NR+ISO+Pos','m:NR x m:ISO x m:Pos'),('T3 NR+Ind','m:NR x m:Ind'),('T4 NR+ISO','m:NR x m:ISO'),('T5 NR+Pos','m:NR x m:Pos'),('T6 NR','m:NR'),('T7 Book','always 1'),('Best tier','lowest tier number the deal matches'),('In primary cohort','1 if the deal matches the primary tier chosen on Historical Score'),('Seq','running count of in-primary-cohort rows; feeds the Comparable Deals list')]
+allh=raw_cols+[l[0] for l in live]+[p_[0] for p_ in planned]
+for i,t in enumerate(allh):
+    c=hs.cell(1,1+i,t); c.font=SUB; c.fill=MID if i<len(raw_cols) else (PatternFill('solid',fgColor='065F46') if i<len(raw_cols)+len(live) else DARK); c.alignment=Alignment(horizontal='center',vertical='center',wrap_text=True); c.border=BOX
 hs.row_dimensions[1].height=42
 hs.cell(2,1,'RAW from CRM export (values) →').font=NOTE
-for i,(t,d) in enumerate(helper): logic(hs,f'{L(len(raw_cols)+1+i)}2',d)
+for i,(t,d,f) in enumerate(live): note(hs,f'{L(len(raw_cols)+1+i)}2','LIVE (house book): '+d)
+for i,(t,d) in enumerate(planned): logic(hs,f'{L(len(raw_cols)+len(live)+1+i)}2',d)
 hs.row_dimensions[2].height=80
 keep=[0,1,2,3,4,5,6,7,9,11,12,13,14,15,16,17,18,19,20,21,23,24,25,26]
+assert L(len(raw_cols)+1)=='Y' and L(len(raw_cols)+len(live))=='AX'
 for i,r in enumerate(sample):
     rr=3+i
     for j,k in enumerate(keep):
@@ -173,10 +204,13 @@ for i,r in enumerate(sample):
         if k in (4,5,26): c.number_format='mm/dd/yyyy'
         if k in (15,16,17,18,19): c.number_format='"$"#,##0'
         if k in (20,25): c.number_format='0.0%'
-note(hs,'A12','8 synthetic sample deals from Copy_of_House_Book_Analytics.xlsx. The build replaces these with the full CRM export (1,067 rows, same column order). Helper columns become formulas filled down every row.')
-hs.freeze_panes='E3'; widths(hs,{'A':12,'B':22,'C':22,'D':18,'K':14,'Y':22})
-for i in range(len(helper)): hs.column_dimensions[L(len(raw_cols)+1+i)].width=16
-
+    for j,(t,d,f) in enumerate(live):
+        c=hs.cell(rr,len(raw_cols)+1+j,f.format(r=rr)); c.font=N
+        if t in ('Net cash','Principal lost'): c.number_format='"$"#,##0'
+        if t in ('Collected %','Advance / revenue'): c.number_format='0.00'
+note(hs,'A12','8 synthetic sample deals from Copy_of_House_Book_Analytics.xlsx. Green headers = helper columns carried over from House Book Analytics with their formulas live (re-pointed to this workbook\'s Controls and Ref). Dark headers = new columns for the matching engine, outlined only. The build replaces the samples with the full CRM export (1,067 rows) and fills every helper column down.')
+hs.freeze_panes='E3'; widths(hs,{'A':12,'B':22,'C':22,'D':18,'K':14})
+for i in range(len(live)+len(planned)): hs.column_dimensions[L(len(raw_cols)+1+i)].width=15
 # ---------- Historical Score ----------
 sc=wb.create_sheet('Historical Score'); widths(sc,{'A':7,'B':36,'C':44})
 sc['A1']='HISTORICAL SCORE  -  comparable cohorts, credibility and the risk modifier  (outline)'; sc['A1'].font=Font(name='Calibri',size=14,bold=True)
