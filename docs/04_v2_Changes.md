@@ -11,3 +11,15 @@ Full-book test (renewal restaurant via Westwood): green-line max $85,500 → siz
 **Decision Summary** is now a bulleted read-out: decision, offer, sizing line used, the four offer-side metrics with status, modifier, cohort numbers, largest impact, limiting metric, triggers, one evidence line per dimension, warnings, reds and greens at the requested offer.
 
 **Demo file minimums** are lowered (3 seasoned deals / $30,000 / rate shown at 2 / indicator green at 5) so eight sample deals produce cohorts. The production values (10 / $150,000 / 5 / 30) are noted beside each cell on Controls.
+
+---
+
+# v3 changes (`build/build_model_v3.py`)
+
+- **Credibility and blend removed.** Index = primary-cohort principal lost rate ÷ seasoned-book principal lost rate. Side notes on Controls (row 42) and Historical Score (row 2) record that a blend rate and credibility factor are under consideration.
+- **Historical Score cut to eight columns:** Tier, Cohort, Seasoned deals, Funded (seasoned), Meets min?, Principal lost rate, Return on funded, Index. Single-dimension rows kept (position, new/renewal, industry, ISO) for the C2 block and the largest-impact test; state removed. RESULT block: primary tier (lowest tier meeting both minimums), its PLR / ROF / index, modifier row, largest-impact variable, warnings.
+- **Largest-impact variable:** column I holds |PLR − book PLR| for each single-dimension row; MAX picks the biggest gap, MATCH finds its row, INDEX returns the name.
+- **Seq removed.** Comparable Deals is now a filterable copy of the book with "Best tier" and "In primary cohort" flag columns (filter column V to 1).
+- **State removed** from the Deal profile, matching columns, C2, and the summary. Credit score input moved to K15; new/renewal to K14.
+- **C2 block** shows PLR, green/red lines, status, seasoned n, and return on funded for the primary cohort and the four single dimensions.
+- Demo consequence: with no credibility, 5 New-Deal sample deals at 50.8% PLR vs a 41% book give index 1.24 → Mild negative (fund × 0.85, factor 1.49). Full-book Westwood renewal restaurant: T3 (23 seasoned, PLR 2.5%) → index 0.12 → Strong positive, 90% flex, $85,500 → $121,500.
