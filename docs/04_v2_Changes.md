@@ -23,3 +23,13 @@ Full-book test (renewal restaurant via Westwood): green-line max $85,500 → siz
 - **State removed** from the Deal profile, matching columns, C2, and the summary. Credit score input moved to K15; new/renewal to K14.
 - **C2 block** shows PLR, green/red lines, status, seasoned n, and return on funded for the primary cohort and the four single dimensions.
 - Demo consequence: with no credibility, 5 New-Deal sample deals at 50.8% PLR vs a 41% book give index 1.24 → Mild negative (fund × 0.85, factor 1.49). Full-book Westwood renewal restaurant: T3 (23 seasoned, PLR 2.5%) → index 0.12 → Strong positive, 90% flex, $85,500 → $121,500.
+
+---
+
+# v4 changes (`build/build_model_v4.py`)
+
+- **Sheets removed:** Decision Summary, Offer Engine, Checks. Workbook is now README, Deal, Historical Score, Comparable Deals, Historical Data, Controls, Ref.
+- **Section F is an outline** (planned rows with plain-English logic, no formulas). Sections A–E stay live; E sizes the max offer at the sizing line.
+- **Three-outcome house-book modifier** (Controls section 5): Supportive when index ≤ 0.85 → sizing flex 50%; Negative when index > 1.15 → fund cut 20% (planned, in F); otherwise Neutral = the tool as built. Manual-review triggers removed.
+- **Historical Score results** cut to: primary tier, cohort, seasoned n, PLR, ROF, index, outcome, sizing flex, largest-impact variable.
+- **Colour-blind Controls:** no blue. Editable cells are bold black on grey with a thick border; links to Controls are italic grey. Statuses remain written as words.
