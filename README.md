@@ -2,8 +2,8 @@
 
 | Path | What it is |
 |---|---|
-| `Aspire_Combined_Underwriting_Model_v4_DEMO.xlsx` | **Current working version, demo data**: 8 sample deals, Deal sheet populated. Seven sheets; three-outcome house-book modifier; Section F outlined (see `docs/04_v2_Changes.md`). |
-| `Aspire_Combined_Underwriting_Model_v4.xlsx` | Same v4 model on the full 1,067-deal book, blank Deal sheet. |
+| `Aspire_Combined_Underwriting_Model_v5_SAMPLE.xlsx` | **Current working version**, 8 sample deals, Deal sheet populated. Thresholds on the Deal sheet, six sheets, three-outcome house-book modifier (see `docs/04_v2_Changes.md`). |
+| `Aspire_Combined_Underwriting_Model_v5_FULL.xlsx` | Same v5 model on the full 1,067-deal book, same populated Deal sheet. |
 | `Aspire_Combined_Underwriting_Model_OUTLINE.xlsx` | **Brainstorm-phase outline.** Deal sheet = your live template (v2 upload, untouched above row 64); every other tab shows the planned logic in words, with Controls values real and 8 sample house-book deals. Built by `build/build_outline.py`. |
 | `Aspire_Combined_Underwriting_Model.xlsx` | The fully-formulated version (reference for the build phase). Blank combined model: `Deal` (the original template + profile inputs + Section F), `Decision Summary`, `Offer Engine`, `Historical Score`, `Comparable Deals`, `Historical Data` (1,067 deals), `Controls`, `Checks`, `Ref`, `README`. |
 | `docs/01_Stage1_Audit_Findings.md` | Audit of both workbooks, the deck and both session logs; what survives controls. |

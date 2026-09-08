@@ -33,3 +33,14 @@ Full-book test (renewal restaurant via Westwood): green-line max $85,500 → siz
 - **Three-outcome house-book modifier** (Controls section 5): Supportive when index ≤ 0.85 → sizing flex 50%; Negative when index > 1.15 → fund cut 20% (planned, in F); otherwise Neutral = the tool as built. Manual-review triggers removed.
 - **Historical Score results** cut to: primary tier, cohort, seasoned n, PLR, ROF, index, outcome, sizing flex, largest-impact variable.
 - **Colour-blind Controls:** no blue. Editable cells are bold black on grey with a thick border; links to Controls are italic grey. Statuses remain written as words.
+
+---
+
+# v5 changes (`build/build_v5_inplace.py`, applied in place on the user's edited v4 demo so their formatting and text edits are kept)
+
+- **Cash-flow thresholds live on the Deal sheet again** (typed values in D/E/G of section C, C61 red-flag limit, E61 minimum fund, F6 fee, K8:L9 conversion constants), exactly as in the original tool. Controls section 1 removed.
+- **Controls** now: 1 pricing bands + max term, 2 conversion constants, 3 historical settings, 4 house-book outcome, 5 status mapping. Removed: factor tiers, tier cut-offs (hard-coded 6.5 / 5 / 3.5 in the Tier label formula), credibility constant, minimum-deals-before-a-rate-is-shown. Rates now always show when the cohort has funded dollars.
+- **Historical Score:** no tier column; cohort names without "T1:" prefixes; RESULT = primary cohort (name, with the row number beside it for Historical Data), seasoned deals, PLR, ROF, index, outcome, sizing flex, largest-impact variable.
+- **Historical Data:** tier flag headers renamed (NR+Ind+Pos, NR+ISO+Pos, ...). Comparable Deals column U renamed "Best match".
+- Helper cells D65/D67 (metrics scored, scaled score) that were deleted in the edited file are folded into the formulas that used them (C62, C66, C72, D72).
+- Two files: SAMPLE (8 deals, minimums 3 / $30k / 5) and FULL (1,067 deals, minimums 10 / $150k / 30). Both carry the same populated Deal sheet (now a 2nd-position deal because of the sample position added on row 28).
