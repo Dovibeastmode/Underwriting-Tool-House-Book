@@ -45,3 +45,16 @@ Full-book test (renewal restaurant via Westwood): green-line max $85,500 → siz
 - Helper cells D65/D67 (metrics scored, scaled score) that were deleted in the edited file are folded into the formulas that used them (C62, C66, C72, D72).
 - Two files: SAMPLE (8 deals, minimums 3 / $30k / 5) and FULL (1,067 deals, minimums 10 / $150k / 30). Both carry the same populated Deal sheet (now a 2nd-position deal because of the sample position added on row 28).
 - **Section F is live (v5.1):** final decision; green-line max (cash flow only) shown beside the max at the sizing line (C73) so the house-book lift is visible; recommended fund = C73, or C73 × (1 − cut) when the outcome is Negative; factor, term, payment, daily-equivalent; the four offer-side metrics re-checked at the final offer with GREEN / YELLOW / RED; house-book outcome with the primary cohort's numbers. Full-book Westwood renewal test: green-line max $85,500 → C73 $105,500 at 50% flex → recommended $105,500, holdback and fund/revenue YELLOW, nothing red.
+
+---
+
+# v6 changes (`build/build_v6.py`, then `build/finalize_xlookup.py`)
+
+1. **Seasoning** = age ≥ multiple × term **OR** the deal reached a terminal status (Closed family, Written-Off, Bankruptcy, Settlement). Full book: 637 → 716 seasoned deals, book PLR 21.1% → 16.3%, ROF +1.7% → +10.3%.
+2. **Dead columns cut**: AZ (duplicate of AR) and BA (always 1) removed; BB (Best tier) and Comparable Deals column U removed. Tier flags now AU–AZ + AR, "In primary cohort" moved to BA.
+3. **New tier 1: New/renewal + ISO + industry.** Order: ISO+Ind → Ind+Pos → ISO+Pos → Ind → ISO → Pos → NR → Book. No four-way tier (it never qualified on the full book).
+4. **Historical Score C36** → `XLOOKUP`, returns the dimension name only. Written after recalculation so LibreOffice cannot rewrite it; it evaluates in Google Sheets and Excel 365, and shows `#NAME?` in LibreOffice or pre-2021 Excel.
+5. **Redundant guards stripped** in C2 columns C and H (`IF(x="","",x)` → `x`).
+6. **Section E green-line column** (F67:F73) runs the same chain at the green lines, so the house-book lift is visible as C73 − F73.
+7. **Section E hidden** (rows 64–74).
+8. **Section F restructured**, no detail column: Final Decision, Cash flow only (9pt), RECOMMENDED FUND, Factor, Term (weeks), Term (daily pmts), Weekly payment, Daily payment, House-book outcome. The four metric re-checks moved to columns I:K, off the printed area, still feeding the decision.
