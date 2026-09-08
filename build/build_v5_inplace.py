@@ -102,6 +102,45 @@ for r,hsrow in ((52,25),(53,24),(54,23),(55,22)):
 ws['C56']=f'=IF({HS}$D$29=7,0,{HS}$C$30)'; ws['D56']=f'={C}$B$26'; ws['E56']=f'={C}$B$24'
 for a in ('D56','E56'): ws[a].font=Font(name='Calibri',size=11,italic=True,color='374151')
 
+# ======================= Section F: live =======================
+from openpyxl.formatting.rule import CellIsRule
+G_FILL=PatternFill('solid',fgColor='00B050'); Y_FILL=PatternFill('solid',fgColor='FFFF00'); R_FILL=PatternFill('solid',fgColor='FF0000')
+for m in list(ws.merged_cells.ranges):
+    if m.min_row>=75: ws.unmerge_cells(str(m))
+clear(ws,'B75:M95')
+for r in range(75,96): ws.row_dimensions[r].height=None
+hdr(ws,'B75','F.  FINAL OFFER   =   max at the sizing line (section E)   +   house-book outcome','B75:H75')
+sub(ws,76,['Item','Value','Detail'],start=2); ws.merge_cells('D76:H76')
+K9='$K$9'
+GL_DAILY=f'MAX(0,MIN(D39*C24/{K9},(D38*C24-F34)/{K9},IF(D24=0,0,D40*D24-E34)))'
+rows=[
+ (77,'FINAL DECISION','=IF(C24=0,"",IF(OR(C73="-",C73="",C80="",C80=0,C80<E61,COUNTIF(F42:F45,"RED")+COUNTIF(F42:F45,"KNOCKOUT")+COUNTIF(D85:D88,"RED")>=C61),"DECLINE",IF(OR(COUNTIF(D85:D88,"YELLOW")>0,COUNTIF(F42:F45,"YELLOW")>0,C89="Negative"),"CONDITIONAL","APPROVE")))',
+  '=IF(C77="","Enter bank data.",IF(C77="DECLINE",IF(C73="-","Merchant knockout: "&INDEX(B42:B45,MATCH("KNOCKOUT",F42:F45,0)),IF(OR(C73="",C80=0),"No clean room under the sizing line.",IF(C80<E61,"Fund "&TEXT(C80,"$#,##0")&" is below the minimum "&TEXT(E61,"$#,##0"),"Red flags reached the limit."))),IF(C77="APPROVE","All metrics green at the final offer; house book neutral or supportive.","Yellows at the final offer, or the house book is negative.")))',None),
+ (78,'Green-line max fund (cash flow only)',f'=IF(C24=0,"",IF(COUNTIF(F42:F45,"KNOCKOUT")>0,"-",IF({GL_DAILY}=0,0,FLOOR({GL_DAILY}*MAX(20,MIN(INDEX({C}$B$5:$B$8,MATCH({SCALED},{C}$A$5:$A$8,1)),FLOOR({C}$B$9*{K9},5),FLOOR(D41*C24*D72/{GL_DAILY},5)))/D72,500))))','="what the tool as built would size, with no history"','"$"#,##0'),
+ (79,'Max fund at the sizing line (C73)','=C73',f'=IF(C79="","",IF({HS}$C$35=0,"green lines - house book "&{HS}$C$34,TEXT({HS}$C$35,"0%")&" of the way to the red lines - house book "&{HS}$C$34&"; yellows allowed"))','"$"#,##0'),
+ (80,'RECOMMENDED FUND',f'=IF(OR(C73="",C73="-"),C73,IF({HS}$C$34="Negative",FLOOR(C73*(1-{C}$B$32),500),C73))',f'=IF(OR(C80="",C80="-"),"",IF({HS}$C$34="Negative","C73 cut by "&TEXT({C}$B$32,"0%")&" (house book negative)","= max at the sizing line")&IF(B6="","","  |  requested "&TEXT(B6,"$#,##0")))','"$"#,##0'),
+ (81,'Factor','=IF(OR(C80="",C80="-"),"",D72)','="from the score band"','0.00'),
+ (82,'Term','=IF(OR(C80="",C80="-"),"",IF($E$6="Weekly",C72/5,C72))','=IF(C82="","",IF($E$6="Weekly","weeks","daily payments")&"  ("&TEXT(C72/$K$9,"0.0")&" months)")','0'),
+ (83,'Payment','=IF(OR(C80="",C80="-"),"",IF($E$6="Weekly",C84*5,C84))','=IF(C83="","","per "&IF($E$6="Weekly","week","business day")&";  monthly "&TEXT(C84*$K$9,"$#,##0")&";  payback "&TEXT(C80*C81,"$#,##0")&";  net "&TEXT(C80*(1-F6),"$#,##0"))','"$"#,##0.00'),
+ (84,'Daily-equivalent payment','=IF(OR(C80="",C80="-"),"",C80*C81/C72)','=IF(C84="","","vs max daily at the sizing line "&TEXT(C70,"$#,##0.00"))','"$"#,##0.00'),
+ (85,'Holdback % at final offer','=IF(C84="","",C84*$K$9/C24)','=IF(C85="","",IF(C85>=G39,"KNOCKOUT",IF(C85<=D39,"GREEN",IF(C85>=E39,"RED","YELLOW"))))','0.0%'),
+ (86,'Total LVG at final offer','=IF(C84="","",(E34+C84)*$K$9/C24)','=IF(C86="","",IF(C86>=G38,"KNOCKOUT",IF(C86<=D38,"GREEN",IF(C86>=E38,"RED","YELLOW"))))','0.0%'),
+ (87,'Daily debt / balance at final offer','=IF(OR(C84="",D24=0),"",(E34+C84)/D24)','=IF(C87="","",IF(C87>=G40,"KNOCKOUT",IF(C87<=D40,"GREEN",IF(C87>=E40,"RED","YELLOW"))))','0.0%'),
+ (88,'Fund / revenue at final offer','=IF(OR(C80="",C80="-"),"",C80/C24)','=IF(C88="","",IF(C88>=G41,"KNOCKOUT",IF(C88<=D41,"GREEN",IF(C88>=E41,"RED","YELLOW"))))','0.00'),
+ (89,'House-book outcome',f'={HS}$C$34',f'={HS}$C$29&": "&{HS}$C$30&" seasoned deals, PLR "&IF({HS}$C$31="","n/a",TEXT({HS}$C$31,"0.0%"))&" vs book "&TEXT({HS}$C$10,"0.0%")&", ROF "&IF({HS}$C$32="","n/a",TEXT({HS}$C$32,"0.0%"))&", index "&IF({HS}$C$33="","n/a",TEXT({HS}$C$33,"0.00"))',None)]
+for r,t,f,d,fmt in rows:
+    c=ws.cell(r,2,t); c.font=B; c.alignment=Alignment(horizontal='right',vertical='center'); c.border=BOX
+    c=ws.cell(r,3,f); c.font=Font(name='Calibri',size=12 if r in (77,80) else 11,bold=True); c.alignment=CEN; c.border=BOX
+    if fmt: c.number_format=fmt
+    c=ws.cell(r,4,d); c.border=BOX
+    if 85<=r<=88: c.font=B; c.alignment=CEN
+    else: c.font=NOTE; c.alignment=LEFT; ws.merge_cells(f'D{r}:H{r}')
+for v,f,fc in (('GREEN',G_FILL,'FFFFFF'),('YELLOW',Y_FILL,'000000'),('RED',R_FILL,'FFFFFF'),('KNOCKOUT',R_FILL,'FFFFFF')):
+    ws.conditional_formatting.add('D85:D88',CellIsRule(operator='equal',formula=[f'"{v}"'],fill=f,font=Font(color=fc,bold=True)))
+for v,f,fc in (('APPROVE',G_FILL,'FFFFFF'),('CONDITIONAL',Y_FILL,'000000'),('DECLINE',R_FILL,'FFFFFF')):
+    ws.conditional_formatting.add('C77',CellIsRule(operator='equal',formula=[f'"{v}"'],fill=f,font=Font(color=fc,bold=True)))
+ws['B91']='Supportive history raises C73 above the green-line max (row 78) by moving the sizing lines; negative history cuts it. Knockouts are never removed and no metric may be red at the final offer.'; ws['B91'].font=NOTE
+
 # ======================= Historical Score =======================
 for m in list(sc.merged_cells.ranges): sc.unmerge_cells(str(m))
 clear(sc,'A4:I60')
