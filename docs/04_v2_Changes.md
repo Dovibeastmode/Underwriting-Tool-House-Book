@@ -73,3 +73,9 @@ The whole-seasoned-book row always met the minimums, so with no deal profile ent
 - Deal Section F (`C76`, `C77`, `C78`, `C84`) stays blank until new/renewal is entered. Section E still sizes from bank data alone, which is the original tool's behaviour and is unchanged.
 
 Verified: everything blank → F empty. Bank data, no profile → E sizes $51,000, F empty, C2 reads "- no deal entered -". Full profile → cohort selected, offer produced, no regression.
+
+## v7 fix (post-delivery)
+
+- **Deal!L12 / L13** — the "deals in book" hint counted `'Historical Data'!$K$2:$K$9`
+  and `$Y$2:$Y$9`. Correct in the SAMPLE file (8 data rows), wrong in FULL. Widened
+  to `$2:$1068`. Display-only; it never fed the cohort match or the offer.
