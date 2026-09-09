@@ -58,3 +58,18 @@ Full-book test (renewal restaurant via Westwood): green-line max $85,500 → siz
 6. **Section E green-line column** (F67:F73) runs the same chain at the green lines, so the house-book lift is visible as C73 − F73.
 7. **Section E hidden** (rows 64–74).
 8. **Section F restructured**, no detail column: Final Decision, Cash flow only (9pt), RECOMMENDED FUND, Factor, Term (weeks), Term (daily pmts), Weekly payment, Daily payment, House-book outcome. The four metric re-checks moved to columns I:K, off the printed area, still feeding the decision.
+
+---
+
+# v7 fixes (`build/apply_v7_fixes.py`) — blank-deal behaviour
+
+The whole-seasoned-book row always met the minimums, so with no deal profile entered it became the "primary cohort" and printed the book's own PLR, seasoned count and ROF as if they were evidence. Section F then produced a full recommended offer off bank data alone.
+
+- `Historical Score D29` returns blank when new/renewal (C5) is empty, so no cohort is selected at all.
+- `C29`–`C33` blank out when D29 is blank **or** 8 (the book row). This restores a guard that was removed in v6 — it was doing real work.
+- `C34` returns Neutral in both cases, so sizing flex stays 0.
+- `Historical Data BA` guards `CHOOSE` against a blank index (otherwise `#VALUE!` on every row).
+- Deal `F51`, `G51`, `C56`, `F56` follow, removing the contradiction where row 51 showed 716 seasoned deals and row 56 showed 0.
+- Deal Section F (`C76`, `C77`, `C78`, `C84`) stays blank until new/renewal is entered. Section E still sizes from bank data alone, which is the original tool's behaviour and is unchanged.
+
+Verified: everything blank → F empty. Bank data, no profile → E sizes $51,000, F empty, C2 reads "- no deal entered -". Full profile → cohort selected, offer produced, no regression.
