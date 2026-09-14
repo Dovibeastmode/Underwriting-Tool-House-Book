@@ -4,7 +4,7 @@ from openpyxl.worksheet.formula import ArrayFormula
 
 SRC="/root/.claude/uploads/15c93af4-845a-5d84-bd2c-2f824a3823d2/f47874f8-House_Book_Analytics_3.xlsx"
 OUT="House_Book_Analytics_v4_SEASONING.xlsx"
-LAST_ROW=1105          # real last data row (was hard-coded 1068 everywhere)
+LAST_ROW=1068          # real last DEAL row (1069+ is the column-documentation table)
 OLD_LAST=1068
 BLUE=PatternFill("solid",fgColor="FFCCE5FF")
 def t(v): return v.text if isinstance(v,ArrayFormula) else v
@@ -31,7 +31,7 @@ put(ct,"D9","Require seasoning?  Y / N")
 put(ct,"E9","Y")
 put(ct,"D10","Seasoned deals in window")
 put(ct,f"E10",f"=SUMPRODUCT(Data!$BE$2:$BE${LAST_ROW}*Data!$AK$2:$AK${LAST_ROW})")
-put(ct,"F10","of "+str(LAST_ROW-1)+" rows",note=True)
+put(ct,"F10","of "+str(LAST_ROW-1)+" deals",note=True)
 
 # ---------- 2. Data: three new columns ----------
 d["BC1"]="Age at as-of (business days)"; d["BC1"].fill=BLUE
@@ -51,17 +51,7 @@ for r in range(2,LAST_ROW+1):
     d[f"AK{r}"].fill=BLUE
 touched.append(f"Data!AK2:AK{LAST_ROW}")
 
-# ---------- 4. stale 1068 bound -> real last row ----------
-pat=re.compile(r"(Data!\$[A-Z]{1,2}\$\d+:\$[A-Z]{1,2}\$)"+str(OLD_LAST))
-n=0
-for sn in wb.sheetnames:
-    ws=wb[sn]
-    for row in ws.iter_rows(min_row=1,max_row=ws.max_row):
-        for c in row:
-            f=t(c.value)
-            if isinstance(f,str) and f.startswith("=") and pat.search(f):
-                c.value=pat.sub(r"\g<1>"+str(LAST_ROW), f); n+=1
-print("formulas whose Data range was extended 1068 ->",LAST_ROW,":",n)
+# (no range change - $2:$1068 was already correct; rows 1069+ are documentation)
 
 wb.save(OUT)
 print("saved",OUT)
